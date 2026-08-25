@@ -16,7 +16,7 @@ export async function GET() {
   await connectDB();
 
   const prompts = await Prompt.find({ createdBy: user.userId })
-    .sort({ updatedAt: -1 })
+    .sort({ createdAt: 1 })
     .lean();
 
   return NextResponse.json({ prompts });
