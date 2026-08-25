@@ -80,6 +80,82 @@ function CopyButton({ content }: { content: string }) {
   );
 }
 
+function CopyRandomButton({ prompts }: { prompts: PromptRecord[] }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopyRandom() {
+    if (prompts.length === 0) return;
+    const random = prompts[Math.floor(Math.random() * prompts.length)];
+    try {
+      await navigator.clipboard.writeText(random.content);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = random.content;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopyRandom}
+      disabled={prompts.length === 0}
+      title="Copy a random prompt"
+      className={`flex items-center gap-2 rounded-md border px-4 py-2 font-semibold transition-all duration-200 ${
+        copied
+          ? "border-teal-400 bg-teal-50 text-teal-700"
+          : "border-slate-300 bg-white text-slate-700 hover:border-teal-400 hover:text-teal-700 disabled:cursor-not-allowed disabled:opacity-40"
+      }`}
+    >
+      {copied ? (
+        <>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Copied!
+        </>
+      ) : (
+        <>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="16 3 21 3 21 8" />
+            <line x1="4" y1="20" x2="21" y2="3" />
+            <polyline points="21 16 21 21 16 21" />
+            <line x1="15" y1="15" x2="21" y2="21" />
+          </svg>
+          Copy Random
+        </>
+      )}
+    </button>
+  );
+}
+
 export default function PromptsPage() {
   const [prompts, setPrompts] = useState<PromptRecord[]>([]);
   const [query, setQuery] = useState("");
@@ -122,12 +198,15 @@ export default function PromptsPage() {
               Browse, search, and filter your saved prompts.
             </p>
           </div>
-          <Link
-            href="/prompts/create"
-            className="rounded-md bg-teal-600 px-4 py-2 text-center font-semibold text-white hover:bg-teal-700"
-          >
-            Create Prompt
-          </Link>
+          <div className="flex items-center gap-3">
+            <CopyRandomButton prompts={prompts} />
+            <Link
+              href="/prompts/create"
+              className="rounded-md bg-teal-600 px-4 py-2 text-center font-semibold text-white hover:bg-teal-700"
+            >
+              Create Prompt
+            </Link>
+          </div>
         </div>
 
         {/* Filters */}
